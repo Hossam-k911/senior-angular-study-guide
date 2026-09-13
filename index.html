@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a1120" />
+    <meta name="description" content="دليل مذاكرة Senior Frontend Angular بالعربي والإنجليزي: أسئلة مركزة، إجابات نموذجية، وأمثلة كود." />
+    <title>Senior Angular · Study Guide</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="data.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">انتقل للمحتوى</a>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <button class="icon-button mobile-menu" id="menu-button" type="button" aria-label="افتح فهرس الموضوعات" aria-controls="sidebar" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <a class="brand" href="#topic-1" aria-label="الصفحة الرئيسية لدليل Senior Angular">
+            <span class="brand-mark" aria-hidden="true">A</span>
+            <span class="brand-copy"><strong>Senior Angular</strong><small>STUDY GUIDE</small></span>
+          </a>
+          <div class="topbar-actions">
+            <label class="search-box" for="search-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+              <input id="search-input" type="search" placeholder="ابحث عن topic أو سؤال..." autocomplete="off" />
+              <kbd>⌘ K</kbd>
+            </label>
+            <span class="topbar-badge">عربي + English</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
+        <aside class="sidebar" id="sidebar" aria-label="فهرس الموضوعات">
+          <div class="sidebar-head">
+            <span class="sidebar-eyebrow">CONTENTS</span>
+            <button class="icon-button close-menu" id="close-menu" type="button" aria-label="اقفل الفهرس">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg>
+            </button>
+          </div>
+          <nav id="topic-nav" aria-label="موضوعات المذاكرة"></nav>
+          <div class="sidebar-foot"><span class="status-dot" aria-hidden="true"></span> ٤٩ سؤال بإجابات عربي وإنجليزي</div>
+        </aside>
+
+        <main class="main" id="main" tabindex="-1">
+          <div class="content-frame">
+            <div id="main-content" aria-live="polite"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
