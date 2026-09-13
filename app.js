@@ -100,7 +100,7 @@
     const section = data.sections[index];
     renderNav();
     content.innerHTML = `<header class="chapter-header">
-      <div class="chapter-eyebrow"><span class="eyebrow-line"></span> ${index < 12 ? `CHAPTER ${String(index + 1).padStart(2, '0')}` : 'REFERENCE'} <span class="eyebrow-separator">/</span> SENIOR ANGULAR</div>
+      <div class="chapter-eyebrow"><span class="eyebrow-line"></span> ${index < 13 ? `CHAPTER ${String(index + 1).padStart(2, '0')}` : 'REFERENCE'} <span class="eyebrow-separator">/</span> SENIOR ANGULAR</div>
       <h1>${escapeHtml(section.shortTitle)}</h1>
       <div class="chapter-meta"><span>${section.questions.length ? `${section.questions.length} أسئلة مركزة` : 'مرجع سريع'}</span><span class="meta-dot"></span><span>عربي + English</span></div>
       ${section.questions.length ? languageControl() : ''}

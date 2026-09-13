@@ -5,7 +5,7 @@
 
 ## خريطة المذاكرة
 
-1. HTML وCSS وSass وAccessibility
+1. HTML وCSS وSass وAccessibility؛ ثم مراجعة HTML5 العملية في الفصل 13
 2. JavaScript ثم TypeScript
 3. OOP وSOLID وData Structures
 4. Angular الأساسية وDI وRouting وForms
@@ -599,7 +599,6 @@ ngOnInit() {
 
 **المعنى بالعربي:** أنا حسام نذير، مطوّر Frontend بخبرة أكثر من ٤ سنوات في تطبيقات Angular للأنظمة المؤسسية والحكومية. في DXC اشتغلت على منصة London Market للتأمين، وبنيت dashboards وواجهات بيانات وتقارير باستخدام Angular وNgRx وRxJS. اشتغلت أيضًا على تنظيم الـfrontend وتحسين الأداء، ومن ضمن النتائج المذكورة في الـCV تحسن زمن التحميل الأولي 30%. قبلها في Spectrum 360 طورت أجزاء من منصة هيئة الدواء المصرية، منها نماذج التسجيل والترخيص متعددة الخطوات. ومؤخرًا أعمل على Angular وJava Spring Boot في تطبيق تأمين، وده يساعدني أتعاون بعمق مع فرق الـbackend. مهتم بدور Senior Angular لأنني أحب تحمّل مسؤولية features معقدة وجعلها موثوقة وسهلة الصيانة والاستخدام.
 
-**تنبيه للمقابلة:** جملة الـ30% موجودة في الـCV؛ جهّز شرح طريقة القياس والـbaseline قبل استخدامها شفهيًا. لو المسؤولية أو الرقم اتغيروا منذ كتابة الـCV، حدّث هذه الفقرة كذلك. احفظ تسلسل القصة، لا النص كلمة بكلمة.
 
 ### Follow-up متوقع: “Tell me about a technical challenge.”
 
@@ -611,6 +610,206 @@ ngOnInit() {
 
 ---
 
+## 13. HTML وHTML5 — مراجعة Senior مركزة
+
+الفصل ده يبدأ من بنية الصفحة وينتهي بسيناريوهات code review. في المقابلة، اشرح **اختيار العنصر ولماذا**، ثم أثره على accessibility وSEO والسلوك الافتراضي. HTML5 اسم شائع لمجموعة تطورات الويب؛ المرجع الحالي للغة HTML هو **HTML Living Standard**.
+
+**مراجع الفصل:** [HTML Living Standard](https://html.spec.whatwg.org/multipage/) · [HTML forms](https://html.spec.whatwg.org/dev/forms.html) · [W3C WAI: Forms](https://www.w3.org/WAI/tutorials/forms/) · [W3C WAI: Images](https://www.w3.org/WAI/tutorials/images/) · [W3C WAI: Developing for accessibility](https://www.w3.org/WAI/tips/developing/).
+
+### س49. اكتب skeleton صحيح لصفحة HTML حديثة، واشرح دور كل سطر.
+
+**الإجابة بالعربي:** `<!doctype html>` يطلب standards mode بدل quirks mode. `lang` يحدد لغة المستند لقارئات الشاشة والبحث، و`dir` يحدد اتجاه النص عند الحاجة. `charset` يحدد الترميز، و`viewport` يجعل عرض الصفحة على الموبايل مطابقًا لعرض الجهاز، و`title` اسم الصفحة في التبويب ونتائج البحث. `meta description` وصف مفيد للصفحات العامة، وليس ضمانًا لترتيب البحث.
+
+```html
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>الطلبات | التطبيق</title>
+    <meta name="description" content="تابع طلباتك وحالتها">
+  </head>
+  <body>
+    <main><h1>الطلبات</h1></main>
+  </body>
+</html>
+```
+
+**Interview question (EN):** What belongs in a minimal modern HTML document, and why?
+
+**Answer (EN):** I use the HTML doctype for standards mode, a document language and direction where relevant, UTF-8 encoding, a viewport declaration for mobile layout, a descriptive title, and meaningful content inside `main`. A page-specific meta description can help describe a public page, but it does not guarantee ranking.
+
+### س50. تختار `header`, `nav`, `main`, `section`, `article`, `aside`, و`footer` إزاي؟
+
+**الإجابة بالعربي:** `header` و`footer` مقدمة ونهاية الصفحة أو جزء منها؛ `nav` لمجموعة روابط تنقل مهمة؛ `main` للمحتوى الأساسي الفريد للصفحة؛ `article` لمحتوى مستقل يمكن فهمه وحده مثل مقال أو بطاقة خبر؛ `section` لتجميع موضوعي له عنوان مناسب؛ `aside` لمحتوى جانبي مرتبط. لا أستخدم عنصرًا semantic لمجرد شكله. أرتب العناوين `h1` ثم `h2` بحسب الهيكل، ولا أختار المستوى بسبب حجم الخط؛ CSS للشكل. لو `section` بلا معنى موضوعي، `div` أنسب.
+
+**Interview question (EN):** How do you choose semantic landmarks and heading levels?
+
+**Answer (EN):** I choose elements by meaning: `main` is the page's primary content, `nav` groups major navigation, `article` stands independently, `section` groups a titled theme, and `aside` is related supplementary content. I keep headings in a logical hierarchy and style them with CSS. I use `div` when no semantic element fits.
+
+### س51. إمتى تستخدم `a` وإمتى `button`؟ وإيه مشكلة clickable `div`؟
+
+**الإجابة بالعربي:** `a href` للانتقال إلى URL أو مكان في الصفحة، و`button` لتنفيذ فعل داخل الواجهة مثل فتح dialog أو حفظ تعديل. الاتنين لهما keyboard behavior وfocus وsemantics أصلًا. `div (click)` لا يوفّر كل ده تلقائيًا، فتضطر تقلّد Enter/Space والتركيز والدور والحالات. الرابط بلا `href` لا يصبح رابط تنقل حقيقي. داخل `form` اكتب `type="button"` للزر غير المخصص للإرسال، لأن default للـ`button` هو submit.
+
+**Interview question (EN):** When do you use a link versus a button?
+
+**Answer (EN):** A link navigates to a destination; a button performs an action. Native elements already support keyboard interaction, focus, and accessible semantics. A clickable `div` requires recreating those behaviors and is easy to get wrong. In a form, I explicitly set `type="button"` for actions that should not submit it.
+
+### س52. هل HTML5 يقسم العناصر إلى block وinline؟ وماذا يحدث في nesting غير صحيح؟
+
+**الإجابة بالعربي:** block/inline أساسًا سلوك عرض CSS قد يتغير، بينما HTML الحديث يصف **content categories** وقواعد المحتوى المسموح داخل كل عنصر. مثلًا لا تضع `button` داخل `button`، ولا عنصرًا تفاعليًا داخل زر. والـparser قد يصلح markup غير صحيح: `<p>نص<div>صندوق</div></p>` سيغلق `p` تلقائيًا قبل `div`، فيختلف DOM عما تتخيله. افحص DOM الفعلي في DevTools واستخدم validator وقت الحاجة.
+
+**Interview question (EN):** Why is “block versus inline” not enough to reason about valid HTML?
+
+**Answer (EN):** Display is a CSS concern; HTML has content categories and nesting rules. Invalid nesting may be repaired by the parser, so the resulting DOM can differ from the source. For example, a paragraph closes before a `div`, and nested interactive controls are invalid. I inspect the actual DOM when markup behaves unexpectedly.
+
+### س53. اشرح `id`, `class`, `data-*`, boolean attributes, `hidden`, `lang`, و`dir`.
+
+**الإجابة بالعربي:** `id` فريد داخل المستند ويستخدم للربط مثل `label for` أو fragment URL؛ `class` لتجميع عناصر للـCSS/JS؛ `data-*` لبيانات مخصصة يمكن قراءتها عبر `dataset`، وليس لتخزين secrets. الـboolean attribute مثل `disabled` وجوده يعني true حتى لو كتبت `disabled="false"` في HTML. `hidden` يخفي عنصرًا لا ينبغي عرضه حاليًا؛ لا تستخدمه كوسيلة authorization. `lang` للغة المحتوى، و`dir="rtl"` لاتجاه النص؛ يمكن تطبيقهما على جزء داخل صفحة ثنائية اللغة.
+
+**Interview question (EN):** What are common global attributes and boolean-attribute pitfalls?
+
+**Answer (EN):** An `id` uniquely identifies an element in a document, classes group elements, and `data-*` holds non-sensitive custom data. For HTML boolean attributes, presence means true, so `disabled="false"` still disables the control. `hidden` controls presentation, while `lang` and `dir` describe language and text direction, including mixed-language regions.
+
+### س54. كيف تبني form سليمة: `action`, `method`, `name`, `label`, و`fieldset`؟
+
+**الإجابة بالعربي:** الـform يمكن إرسالها بدون JavaScript. `action` يحدد الوجهة و`method="get"` يضع البيانات في URL المناسب للبحث غير الحساس؛ `post` يرسل body لتغيير البيانات، مع HTTPS والتحقق على السيرفر. قيمة `name` هي مفتاح البيانات المرسلة؛ `id` وحده لا يكفي. اربط `label for` بـ`input id`، واستخدم `fieldset` و`legend` لتجميع حقول مترابطة. الزر `type="submit"` يرسل النموذج.
+
+```html
+<form action="/search" method="get">
+  <label for="query">Search products</label>
+  <input id="query" name="q" type="search" required>
+  <button type="submit">Search</button>
+</form>
+```
+
+**Interview question (EN):** What makes an HTML form work correctly without JavaScript?
+
+**Answer (EN):** The form needs an action and an appropriate method; controls need `name` attributes for submission and associated labels for usability. I use GET for non-sensitive searches and POST for changes, with HTTPS and server-side validation. `fieldset` and `legend` describe related controls, and a submit button triggers native form behavior.
+
+### س55. `input type`, validation attributes, `autocomplete`, و`novalidate`: ما حدودها؟
+
+**الإجابة بالعربي:** `type="email"`, `number`, `date`, `search`, `tel`, `password` تؤثر في سلوك المتصفح ولوحة مفاتيح الموبايل وبعض التحقق، لكن اختر النوع حسب **معنى** البيانات؛ رقم تليفون `tel` وليس `number`. `required`, `min`, `max`, `minlength`, `pattern` تدعم constraint validation، و`autocomplete` يعطي المتصفح hint مناسبًا مثل `email` أو `current-password`. `novalidate` يوقف التحقق التلقائي عند الإرسال؛ لا يعني أن البيانات صحيحة. التحقق client-side لتحسين UX، أما التحقق الأمني والنهائي فعلى السيرفر.
+
+**Interview question (EN):** How do native input types and constraint validation fit into a production form?
+
+**Answer (EN):** I choose input types by data meaning, which can improve mobile keyboards and native validation. Attributes such as `required`, `min`, and `pattern` provide useful feedback, and `autocomplete` helps users complete fields. `novalidate` opts out of automatic submission validation. None of these replaces validation on the server.
+
+### س56. الفرق بين `disabled` و`readonly` و`hidden` في form؟
+
+**الإجابة بالعربي:** `disabled` يمنع التعديل والتركيز المعتاد ولا يرسل قيمة الحقل مع form submission. `readonly` يمنع التعديل في أنواع الحقول التي تدعمه، لكن القيمة تُرسل ويمكن التركيز عليه غالبًا. `hidden` أو `type="hidden"` لا يوفر حماية للقيمة؛ المستخدم يستطيع تعديل request. لو احتجت عرض قيمة للقراءة فقط أقرر هل إرسالها مطلوب أصلًا، ولا أعتمد على أي قيمة من العميل كحقيقة موثوقة.
+
+**Interview question (EN):** How do disabled, readonly, and hidden form controls differ?
+
+**Answer (EN):** Disabled controls are generally not focusable and are not submitted. Readonly controls, where supported, remain submitted and can usually receive focus. A hidden field is merely invisible in the UI; its value can be changed by the client, so the server must not treat it as trusted.
+
+### س57. ما قواعد accessibility الأساسية التي تتوقعها في مراجعة HTML؟
+
+**الإجابة بالعربي:** أبدأ بـnative semantics، عناوين مرتبة، `lang` صحيح، labels لكل controls، `alt` للصور حسب غرضها، تنقل بالكيبورد مع focus ظاهر، نص رابط واضح، ورسائل أخطاء مفهومة مرتبطة بالحقل (`aria-describedby` عند الحاجة). أستخدم `aria-label` فقط عندما لا يوجد اسم نصي مناسب، ولا أضيف `role="button"` إلى `button` أصلًا. `placeholder` مثال/تلميح وليس بديلًا للـlabel. أراجع UI بحالة zoom ومع قارئ شاشة أو فحوص آلية، لكن الفحص الآلي وحده لا يكفي.
+
+**Interview question (EN):** What is your practical HTML accessibility checklist?
+
+**Answer (EN):** I start with native semantic elements, a logical heading order, document language, associated form labels, purpose-based image alternatives, keyboard access with visible focus, meaningful link text, and understandable errors connected to inputs. I add ARIA only where native HTML does not express the needed information. Placeholder text is not a label, and automated checks complement manual keyboard and assistive-technology testing.
+
+### س58. كيف تكتب `alt`، ومتى تستخدم `picture`, `srcset`, `sizes`, وlazy loading؟
+
+**الإجابة بالعربي:** الصورة المعلوماتية تحتاج `alt` يشرح المعلومة؛ صورة الزخرفة `alt=""`؛ ولو الصورة داخل رابط أو زر فالنص يشرح **الفعل**. `srcset` و`sizes` يتيحان للمتصفح اختيار حجم مناسب حسب العرض، و`picture` لتغيير القصّة الفنية أو الصيغة عند الحاجة. حدّد `width` و`height` أو aspect ratio لتقليل layout shift. استخدم `loading="lazy"` للصور البعيدة أسفل الصفحة، ولا تعمل lazy للـhero/LCP image؛ يمكن إعطاؤها أولوية مناسبة بعد القياس. صورة CSS الخلفية للزينة، وليست بديلًا عن صورة تحمل معلومة.
+
+**Interview question (EN):** How do you make images accessible and performant?
+
+**Answer (EN):** I write alt text for the image's purpose: essential information for informative images, an empty alternative for decoration, and the action for a functional image. `srcset` and `sizes` serve appropriate resolutions; `picture` supports art direction or format choices. I reserve image dimensions to limit layout shift, lazy-load offscreen images, and keep the LCP image eager and appropriately prioritized.
+
+### س59. كيف تستخدم `audio`, `video`, و`track` بشكل قابل للاستخدام؟
+
+**الإجابة بالعربي:** أضيف `controls` ليتمكن المستخدم من التشغيل والتحكم، وأوفر صيغة أو أكثر مع fallback مناسب. الفيديو الذي يحتوي كلامًا يحتاج captions باستخدام `<track kind="captions">`، والمحتوى الصوتي المهم يحتاج transcript حسب السياق. `autoplay` خاصة بالصوت مقيدة بسياسات المتصفح ومزعجة للمستخدم؛ لا أبني تجربة أساسية عليها. `poster` يعطي صورة قبل تشغيل الفيديو، وأضع أبعادًا أو نسبة عرض لتجنب القفز في التخطيط.
+
+**Interview question (EN):** What should you consider when embedding audio or video?
+
+**Answer (EN):** I provide native controls, appropriate media sources, captions for spoken video, and a transcript where useful. I avoid relying on autoplay because browser policies restrict audible autoplay and it harms usability. A poster and reserved dimensions make video loading more stable.
+
+### س60. ما الفرق بين normal script و`defer` و`async` و`type="module"`؟
+
+**الإجابة بالعربي:** الـclassic script العادي في الـHTML يوقف parsing أثناء تحميله/تنفيذه. `defer` يحمّل بالتوازي، وينفذ بعد انتهاء parsing وبترتيب ظهوره **قبل** `DOMContentLoaded`. `async` يحمّل بالتوازي وينفذ بمجرد جاهزيته؛ لا تعتمد على ترتيب بين scripts async أو توقيته بالنسبة لانتهاء parsing. Module script يُعامل deferred افتراضيًا مع تحميل dependencies، و`async` للـmodule يغير هذا السلوك. `DOMContentLoaded` لا ينتظر الصور، لكنه ينتظر deferred/module scripts المعتادة. لو scripts تعتمد على ترتيب بعضها، `defer` أو modules أفضل من `async` المستقل.
+
+**Interview question (EN):** Compare classic, deferred, async, and module scripts.
+
+**Answer (EN):** A parser-inserted classic script can block parsing. Deferred scripts download in parallel and run after parsing, in document order, before `DOMContentLoaded`. Async scripts run when ready, so their order is not guaranteed. Module scripts defer by default while loading their dependency graph; an async module changes that scheduling. I choose based on dependencies and when the code needs the DOM.
+
+### س61. متى تستخدم `preload`, `preconnect`, و`modulepreload`؟
+
+**الإجابة بالعربي:** `preload` يخبر المتصفح عن resource مهم مبكرًا، مثل خط أساسي أو صورة LCP لم يكتشفها سريعًا؛ `preconnect` يفتح اتصالًا مبكرًا مع origin خارجي تحتاجه الصفحة قريبًا؛ `modulepreload` يجهّز module وdependencies مناسبة. لا أضيف hints لكل الملفات: قد تزاحم الموارد الأهم وتضر الأداء. أبدأ بقياس network waterfall وLCP، ثم أضيف hint واحدًا له سبب واضح وأقيس النتيجة.
+
+**Interview question (EN):** How do HTML resource hints help, and when can they hurt?
+
+**Answer (EN):** Preload can expose a critical resource early, preconnect can prepare a needed third-party origin, and modulepreload can prepare module resources. Overusing hints competes for bandwidth and may worsen performance. I inspect the loading waterfall, target a measured bottleneck, and verify the impact.
+
+### س62. ما علاقة HTML بالـSEO؟ وماذا يضيف SSR في تطبيق Angular؟
+
+**الإجابة بالعربي:** HTML واضح فيه `title` فريد، meta description ملائمة، headings منطقية، روابط `href` حقيقية، `lang`، نص محتوى ظاهر، وcanonical URL للصفحات التي تحتاجه، يساعد محركات البحث والمستخدمين. Robots directives تتحكم في الفهرسة عند الحاجة. SSR يجعل الـHTML الأولي يحمل المحتوى بدل الاعتماد الكامل على تنفيذ JS، لكن فائدته تتوقف على نوع الصفحة ومحرك البحث والقياس؛ ولا يصلح تلقائيًا محتوى ضعيفًا أو metadata مكررة. أفحص **View Source/response HTML** وليس DOM بعد hydration فقط.
+
+**Interview question (EN):** What can HTML do for SEO, and what changes with Angular SSR?
+
+**Answer (EN):** I provide unique titles, useful descriptions, logical headings, real crawlable links, meaningful page content, language, and canonical URLs where needed. SSR can include content in the initial HTML response rather than requiring client-side rendering first. I verify the response HTML and metadata per route and measure the result; SSR alone is not an SEO guarantee.
+
+### س63. كيف تراجع `iframe` أمنيًا ومن ناحية accessibility؟
+
+**الإجابة بالعربي:** أعطي الـiframe `title` يصف محتواه لقارئ الشاشة، و`loading="lazy"` لو خارج الشاشة. أحدد `sandbox` بأقل صلاحيات يحتاجها المحتوى، وأستخدم `allow` للميزات المطلوبة فقط، و`referrerpolicy` حسب سياسة الخصوصية. لا أفترض أن iframe من origin آخر يمكنني قراءة DOM داخله؛ Same-Origin Policy تمنع ذلك عادة، والتواصل المنضبط يكون بـ`postMessage` مع التحقق من `origin` والرسالة. تحميل third-party له أثر أداء وخصوصية فأقيسه.
+
+**Interview question (EN):** What do you check before embedding a third-party iframe?
+
+**Answer (EN):** I give it a descriptive title, consider lazy loading, restrict capabilities with `sandbox` and `allow`, and set an appropriate referrer policy. Cross-origin DOM access is restricted; if communication is necessary, I use `postMessage` with origin and payload checks. I also measure its performance and privacy impact.
+
+### س64. هل `localStorage`, `sessionStorage`, وCookies جزء من HTML نفسه؟ وأيهما تختار؟
+
+**الإجابة بالعربي:** دي Web Platform APIs مرتبطة بعصر HTML5، وليست HTML tags. `localStorage` يبقى عبر جلسات المتصفح، و`sessionStorage` مربوط بالتبويب/الجلسة؛ الاتنين synchronous وقابلان للوصول من JS لنفس origin، فلا أخزن فيهما secrets. Cookies تُرسل مع HTTP requests بحسب خصائصها؛ للجلسة الحساسة أفضل cookie بخصائص `HttpOnly`, `Secure`, و`SameSite` وفق تصميم الـbackend، مع مراعاة CSRF. التخزين المناسب يعتمد على العمر المطلوب والـthreat model، وليس شعارًا عامًا.
+
+**Interview question (EN):** How do localStorage, sessionStorage, and cookies differ?
+
+**Answer (EN):** They are web platform storage mechanisms, not HTML elements. Local storage persists across browser sessions; session storage is scoped to a tab session. Both are synchronous and readable by same-origin JavaScript, so I avoid putting secrets there. Cookies can accompany requests; for sensitive sessions I prefer a properly designed HttpOnly, Secure, SameSite cookie strategy and account for CSRF.
+
+### س65. إمتى تستخدم `canvas` وSVG وWeb Workers؟
+
+**الإجابة بالعربي:** SVG مناسب لرسومات vector وعناصر يمكن تكبيرها والتعامل معها كعناصر DOM؛ `canvas` سطح رسم bitmap مناسب للرسم المتكرر أو مشاهد كثيفة، لكن يجب توفير بديل accessible للمعلومات والتفاعلات. Web Worker ينقل computation ثقيلة خارج main thread، لكنه لا يتعامل مع DOM مباشرة. لا أضع كل مشكلة performance في Worker؛ أبدأ بتحديد blocking task ثم أقيس أثر النقل والتواصل بين threads.
+
+**Interview question (EN):** When would you choose SVG, canvas, or a Web Worker?
+
+**Answer (EN):** SVG suits scalable vector graphics with DOM-level structure. Canvas is useful for dense or frequently redrawn scenes, with accessibility alternatives for meaningful content. A Web Worker handles heavy computation off the main thread but cannot directly manipulate the DOM. I profile first and account for message-transfer overhead.
+
+### س66. كيف تبني data table سليمة وقابلة للقراءة؟
+
+**الإجابة بالعربي:** استخدم `<table>` للبيانات الجدولية فقط، وليس layout. `caption` يوضح غرض الجدول، `th scope="col"` و`scope="row"` يربطان العناوين بالخلايا، و`thead/tbody/tfoot` ينظمون المحتوى. للجداول المعقدة قد أستخدم `headers`/`id` وربما تبسيط العرض على الموبايل بدل تمرير جدول ضخم دون تفكير. لو قائمة cards لا علاقة صفوف/أعمدة فيها، أستخدم list أو articles.
+
+**Interview question (EN):** What makes an HTML data table semantic and accessible?
+
+**Answer (EN):** I use a table for genuinely tabular data, add a useful caption, identify row and column headers with `th` and `scope`, and group rows where helpful. Complex associations may require explicit header IDs. I also design a usable small-screen presentation rather than using tables for page layout.
+
+### س67. ما الفرق بين source HTML وDOM؟ ولماذا `innerHTML` خطر مع نص غير موثوق؟
+
+**الإجابة بالعربي:** المتصفح يفسر source HTML ويبني DOM، وقد يصلح markup غير صحيح، ثم JavaScript/Angular يغير DOM لاحقًا. `textContent` يعرض النص كنص؛ `innerHTML` يفسر markup، فإدخال user content غير موثوق فيه قد يؤدي إلى XSS. في Angular استخدم binding العادي وآليات sanitization، ولا تتجاوزها بـ`bypassSecurityTrust...` إلا بعد مراجعة مصدر المحتوى وسياقه بعناية. `View Source` يريك response الأولي، وElements في DevTools يريك DOM الحالي.
+
+**Interview question (EN):** How do source HTML and the live DOM differ, and where does XSS enter?
+
+**Answer (EN):** The browser parses source markup into a DOM, repairs some invalid markup, and scripts or frameworks can then change it. `textContent` treats input as text, while `innerHTML` parses markup, so untrusted content can introduce XSS. In Angular I rely on normal bindings and contextual sanitization rather than bypassing them casually. View Source and the Elements panel answer different questions.
+
+### س68. Code review: ما العيوب في المثال، وإزاي تصلحها؟
+
+```html
+<div onclick="save()">Save</div>
+<form action="/profile" method="post">
+  <input id="email" type="email" placeholder="Email">
+  <button onclick="preview()">Preview</button>
+  <button>Submit</button>
+</form>
+<img src="avatar.jpg">
+```
+
+**الإجابة بالعربي:** `Save` يجب أن يكون `<button type="button">` مع اسم واضح (أو `a href` لو ينقل). `email` يحتاج `<label for="email">` و`name="email"` حتى يُرسل؛ placeholder ليس label. زر Preview داخل form default بتاعه submit، فليكن `type="button"`، وزر الإرسال `type="submit"` بوضوح. الصورة: لو avatar معلوماتية ضع `alt` مناسبًا مثل اسم الشخص، ولو زخرفية `alt=""`، وحدد dimensions قدر الإمكان. تجنب inline handlers في التطبيق؛ اربط events من كود التطبيق، وتحقق من البيانات على السيرفر.
+
+**Interview question (EN):** Review this markup for semantics, submission bugs, and accessibility.
+
+**Answer (EN):** The Save action should use a real button, or a link if it navigates. The email control needs an associated label and a `name` to submit its value; a placeholder is insufficient. Preview needs `type="button"` to avoid accidental form submission, while Submit should be explicit. Give the image a purpose-appropriate alt value and dimensions. I would wire behavior in application code and validate submitted data server-side.
+
+---
 ## قائمة المراجعة قبل المقابلة
 
 - أقدر أشرح SOLID بالإنجليزي مع مثال Angular واحد على الأقل.
@@ -627,3 +826,5 @@ ngOnInit() {
 - [Angular documentation](https://angular.dev/overview) · [Angular performance](https://angular.dev/best-practices/performance) · [Angular security](https://angular.dev/best-practices/security)
 - [RxJS higher-order Observables](https://rxjs.dev/guide/higher-order-observables) · [NgRx Store](https://ngrx.io/guide/store/why) · [NgRx selectors](https://ngrx.io/guide/store/selectors)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/2/narrowing) · [MDN JavaScript closures](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures) · [Core Web Vitals](https://web.dev/articles/vitals)
+
+
