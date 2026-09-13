@@ -159,11 +159,28 @@
     else navigate();
   });
   content.addEventListener('click', (event) => {
+    const result = event.target.closest('.search-result');
+    if (result && location.hash === result.getAttribute('href')) {
+      event.preventDefault();
+      navigate();
+      return;
+    }
     const button = event.target.closest('[data-language]');
     if (!button) return;
     language = button.dataset.language;
     localStorage.setItem('study-language', language);
-    renderSection(activeSection);
+    content.querySelectorAll('.ar-panel').forEach((panel) => { panel.hidden = language === 'en'; });
+    content.querySelectorAll('.en-panel').forEach((panel) => { panel.hidden = language === 'ar'; });
+    content.querySelectorAll('.answer-grid').forEach((grid) => grid.classList.toggle('show-both', language === 'both'));
+    content.querySelectorAll('[data-language]').forEach((choice) => choice.setAttribute('aria-pressed', String(choice.dataset.language === language)));
+  });
+  nav.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (link && location.hash === link.getAttribute('href')) {
+      event.preventDefault();
+      navigate();
+    }
+    closeMenu();
   });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
