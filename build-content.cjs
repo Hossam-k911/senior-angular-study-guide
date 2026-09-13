@@ -68,8 +68,8 @@ for (const block of blocks) {
 }
 
 const questionCount = sections.reduce((sum, section) => sum + section.questions.length, 0);
-if (sections.length !== 15 || questionCount !== 69) {
-  throw new Error(`Content is incomplete: found ${sections.length} sections and ${questionCount} questions; expected 15 and 69. ${sections.map(s => `${s.id}:${s.questions.length}`).join(', ')}`);
+if (sections.length !== 15 || questionCount !== 71) {
+  throw new Error(`Content is incomplete: found ${sections.length} sections and ${questionCount} questions; expected 15 and 71. ${sections.map(s => `${s.id}:${s.questions.length}`).join(', ')}`);
 }
 
 const data = { title: 'Senior Angular Study Guide', sections };

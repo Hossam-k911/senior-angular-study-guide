@@ -809,6 +809,22 @@ ngOnInit() {
 
 **Answer (EN):** The Save action should use a real button, or a link if it navigates. The email control needs an associated label and a `name` to submit its value; a placeholder is insufficient. Preview needs `type="button"` to avoid accidental form submission, while Submit should be explicit. Give the image a purpose-appropriate alt value and dimensions. I would wire behavior in application code and validate submitted data server-side.
 
+### س69. إمتى تستخدم `details/summary`, `dialog`, و`template`؟
+
+**الإجابة بالعربي:** `<details><summary>...</summary>...</details>` إفصاح بسيط قابل للفتح والإغلاق بسلوك keyboard جاهز، مناسب لـFAQ لا لتجربة معقدة بلا مراجعة UX. `<dialog>` نافذة أصلية؛ فتحها بـ`showModal()` يضعها في top layer ويجعل باقي الصفحة غير تفاعلية ضمن سلوك modal، ويمكن غلقها بـ`close()`؛ انتبه لإدارة focus والاسم الواضح واختبار الإغلاق. `<template>` يحتفظ بmarkup غير مرسوم حتى تستخدمه من JavaScript. وفي Web Components، `slot` يحدد موضع المحتوى الممرر داخل shadow tree؛ هذه ميزة متقدمة وليست لازمة لكل تطبيق Angular.
+
+**Interview question (EN):** What do details, dialog, and template provide natively?
+
+**Answer (EN):** `details` and `summary` provide a built-in disclosure control. A modal `dialog` opened with `showModal()` participates in the top layer and modal interaction model; I still test its accessible name, focus, and closing behavior. `template` stores inert markup for later use. Slots are relevant when building Web Components, not a default requirement for Angular components.
+
+### س70. ماذا تقصد بـ“HTML5 APIs” مثل History, Geolocation, وDrag and Drop؟
+
+**الإجابة بالعربي:** دي browser APIs، وليست tags أو مزايا مضمونة لمجرد كتابة doctype HTML5. History API مثل `pushState` يغير URL/history بدون reload، لكن التطبيق مسؤول عن تحديث الواجهة والتعامل مع `popstate`. Geolocation يحتاج secure context وإذن المستخدم؛ لا تطلبه قبل حاجة واضحة له، ووفر fallback عند الرفض. Native Drag and Drop يحتاج دعم keyboard/touch بديل في الواجهات المهمة؛ لا تفترض أنه حل accessibility كامل. في Angular غالبًا أستخدم Router للتنقل وواجهة مناسبة للـdrag بدل التعامل الخام مع APIs بلا داعٍ.
+
+**Interview question (EN):** Are History, Geolocation, and Drag and Drop part of the HTML syntax?
+
+**Answer (EN):** They are browser APIs often grouped under the historical “HTML5” umbrella, not HTML elements. History APIs change navigation state without automatically rendering the application; geolocation requires a secure context and user permission. Native drag and drop needs accessible keyboard and touch alternatives. In Angular I normally use the Router for navigation and choose an interaction library only when the product needs it.
+
 ---
 ## قائمة المراجعة قبل المقابلة
 
@@ -826,5 +842,6 @@ ngOnInit() {
 - [Angular documentation](https://angular.dev/overview) · [Angular performance](https://angular.dev/best-practices/performance) · [Angular security](https://angular.dev/best-practices/security)
 - [RxJS higher-order Observables](https://rxjs.dev/guide/higher-order-observables) · [NgRx Store](https://ngrx.io/guide/store/why) · [NgRx selectors](https://ngrx.io/guide/store/selectors)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/2/narrowing) · [MDN JavaScript closures](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures) · [Core Web Vitals](https://web.dev/articles/vitals)
+
 
 
