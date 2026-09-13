@@ -68,6 +68,40 @@
 
 ---
 
+### س71. اشرح box model و`box-sizing`، وإيه سبب عنصر عرضه أكبر من المتوقع؟
+
+**الإجابة بالعربي:** في `content-box`، `width` يحدد المحتوى فقط، والـpadding والـborder يزودوا العرض النهائي. في `border-box` يدخلوا داخل العرض المحدد؛ الـmargin يظل خارجه. أفحص كمان `min-width` الافتراضي لعناصر Flex/Grid، والصور أو النصوص الطويلة التي تمنع الانكماش. `box-sizing: border-box` قاعدة مفيدة للمشروع، لكن لا تحل overflow سببه content غير قابل للكسر.
+
+**Interview question (EN):** Why can an element be wider than its declared width?
+
+**Answer (EN):** With `content-box`, padding and borders add to the declared width; `border-box` includes them in it, while margins remain outside. I also inspect min-size constraints in flex or grid items and unbreakable content. A border-box reset helps predict sizing, but I still diagnose the actual overflow source.
+
+### س72. عند تعارض قواعد CSS، تحدد القاعدة الفائزة إزاي؟
+
+**الإجابة بالعربي:** أفحص origin وimportance، ثم cascade layers، ثم specificity، ثم scoping proximity إن وُجد، وأخيرًا source order؛ inheritance لا تكسب declaration مباشرة على نفس العنصر. `!important` لا تستخدمها كحل أول. في DevTools أراجع computed style والقواعد المشطوبة. لو selector معقد، أقلل specificity وأستخدم طبقات/أسماء واضحة بدل التصعيد المستمر.
+
+**Interview question (EN):** How do you debug a CSS rule that does not apply?
+
+**Answer (EN):** I inspect the computed style and cascade: origin and importance, layers, specificity, scope proximity where relevant, and source order. Inheritance only matters when the element has no winning direct declaration for that property. I avoid fighting specificity with repeated `!important` and simplify the stylesheet structure.
+
+### س73. Flexbox أم Grid؟ وإيه معنى `minmax(0, 1fr)`؟
+
+**الإجابة بالعربي:** Flexbox أنسب لترتيب عناصر في محور واحد مع توزيع مرن، وGrid لتخطيط صفوف وأعمدة معًا. `1fr` قد يحتفظ بحد أدنى تلقائي مبني على المحتوى في بعض الحالات؛ `minmax(0, 1fr)` يسمح للعمود بالانكماش، ثم أعالج overflow في المحتوى نفسه. أختار بناءً على علاقة العناصر، لا على أن أحدهما أحدث. للـresponsive أستخدم `repeat(auto-fit, minmax(...))` حين يناسب المحتوى بدل breakpoints عشوائية.
+
+**Interview question (EN):** When do you choose Flexbox or Grid, and why use `minmax(0, 1fr)`?
+
+**Answer (EN):** Flexbox is natural for one-dimensional alignment; Grid is strong when rows and columns must coordinate. `minmax(0, 1fr)` removes an automatic minimum that can make a track overflow. I still handle long content explicitly and choose layout based on the relationship between elements.
+
+### س74. Sass في مشروع كبير: `@use` vs `@import`، وmixin vs placeholder؟
+
+**الإجابة بالعربي:** `@use` يحمل module بnamespace واضح ويمنع تلوث الأسماء؛ Sass `@import` القديم deprecated. Mixin يولّد declarations حيث تستدعيه ويمكنه أخذ arguments، بينما `%placeholder` مع `@extend` يدمج selectors وقد ينتج selectors غير متوقعة إذا توسع الاستخدام. أفضّل CSS custom properties للقيم التي تتغير وقت التشغيل أو حسب theme، وSass variables للقيم المحسوبة أثناء build.
+
+**Interview question (EN):** How would you structure Sass in a large application?
+
+**Answer (EN):** I use modules through `@use` with clear namespaces rather than deprecated Sass `@import`. Mixins are good for reusable declaration patterns with parameters; placeholders and `@extend` can combine selectors, so I use them carefully. I choose CSS custom properties for runtime theming and Sass variables for build-time values.
+
+---
+
 ## 2. JavaScript — الأساسيات وأسئلة الـoutput
 
 ### س6. اشرح scope وhoisting وTemporal Dead Zone.
@@ -216,6 +250,91 @@ console.log('5');
 
 ---
 
+### س75. ما ناتج الكود؟ فسر `this` والـarrow function.
+
+```js
+const user = {
+  name: 'Mona',
+  regular() { return this.name; },
+  arrow: () => this.name,
+};
+console.log(user.regular());
+console.log(user.arrow());
+```
+
+**الإجابة بالعربي:** أول سطر `Mona`. الثاني **ليس `Mona`**: الـarrow لا تنشئ `this` جديدة، بل تلتقط `this` من lexical scope الخارجي. ناتج السطر الثاني يعتمد على بيئة التشغيل والـtop-level `this`، فقد يكون `undefined` أو يحدث خطأ لو كانت `this` نفسها `undefined` في ذلك السياق. ما ينفعش أقول ناتج ثابت دون تحديد البيئة. استخدم method عادية حين تحتاج receiver هو `user`.
+
+**Interview question (EN):** What does this code print, and is the second value environment-independent?
+
+**Answer (EN):** The regular method returns `Mona` because the call receiver is `user`. The arrow captures the surrounding lexical `this`, not the object, so its result is environment-dependent and may even throw if that surrounding `this` is undefined. I would not claim one universal second output without specifying the execution context.
+
+### س76. اطلع ترتيب الـconsole، ووضح أين تدخل microtasks.
+
+```js
+console.log('A');
+setTimeout(() => console.log('B'), 0);
+Promise.resolve().then(() => console.log('C'));
+queueMicrotask(() => console.log('D'));
+console.log('E');
+```
+
+**الإجابة بالعربي:** الترتيب `A E C D B`. الـsynchronous code يخلص أولًا؛ `then` و`queueMicrotask` يدخلان microtask queue بترتيب إضافتهما، ويُنفذان قبل timer task التالي. `setTimeout(..., 0)` يعني أقرب فرصة لاحقة وليس تنفيذًا فوريًا. لو microtask أنشأت microtask أخرى، تُفرغ الطابور قبل الانتقال إلى task التالية، ولذلك يمكن إساءة استخدامها وتأخير الرسم.
+
+**Interview question (EN):** What is the console order, and why?
+
+**Answer (EN):** The output is `A E C D B`. Synchronous statements run first. The promise callback and `queueMicrotask` then run in enqueue order before the timer task. A zero-delay timer schedules a later task; it does not interrupt the current call stack.
+
+### س77. ما ناتج الكود؟ وما الفرق بين shallow copy وdeep copy؟
+
+```js
+const a = { profile: { city: 'Cairo' } };
+const b = { ...a };
+b.profile.city = 'Alex';
+console.log(a.profile.city, a === b, a.profile === b.profile);
+```
+
+**الإجابة بالعربي:** `Alex false true`. الـspread نسخ المستوى الأول فقط: `a` و`b` كائنين مختلفين لكن `profile` نفس المرجع. عند تحديث state في Angular/NgRx لا أعدل nested object بالخطأ؛ أنسخ المسار المطلوب أو أستخدم طريقة immutable واضحة. `structuredClone` قد يكون حلًا لبعض البيانات، لكن ليس بديلًا عامًا: لا ينسخ كل الأنواع/السلوكيات بنفس معنى التطبيق.
+
+**Interview question (EN):** What prints, and what does object spread actually copy?
+
+**Answer (EN):** It prints `Alex false true`. Spread creates a new outer object but keeps the nested `profile` reference. For immutable state changes, I copy the modified path rather than mutating a shared nested object. I do not treat generic deep cloning as a default state-update strategy.
+
+### س78. Promise combinators الأربعة: تختار أي واحد في سيناريو dashboard؟
+
+**الإجابة بالعربي:** `Promise.all` ينتظر نجاح الجميع ويُرفض عند أول rejection، مع أن الطلبات الأخرى لا تُلغى تلقائيًا. `allSettled` يعطيني نتيجة نجاح/فشل لكل طلب، مناسب لو widgets مستقلة. `race` يعطي أول promise تستقر، نجاحًا أو فشلًا؛ `any` يعطي أول نجاح ويرفض بـ`AggregateError` لو الكل فشل. لو أحتاج إلغاء فعلي للـfetch أستخدم `AbortController`، لا أعتمد على combinator وحده.
+
+**Interview question (EN):** How do you choose among `all`, `allSettled`, `race`, and `any`?
+
+**Answer (EN):** `all` requires every result and rejects on a rejection; `allSettled` reports every outcome independently. `race` settles with the first settlement, while `any` resolves with the first fulfillment and fails only if all reject. None of these automatically cancels the other requests; I use an abort mechanism when cancellation matters.
+
+### س79. ما ناتج closure دي، ولماذا يحتفظ المتغير بقيمته؟
+
+```js
+function makeCounter() {
+  let count = 0;
+  return () => ++count;
+}
+const first = makeCounter();
+const second = makeCounter();
+console.log(first(), first(), second(), first());
+```
+
+**الإجابة بالعربي:** `1 2 1 3`. كل استدعاء `makeCounter()` ينشئ lexical environment مستقلة، والـfunction الراجعة تحتفظ بالوصول إلى `count` الخاصة بها بعد انتهاء الاستدعاء الأصلي. Closure ليست leak بحد ذاتها؛ قد تطيل عمر بيانات كبيرة إذا احتفظت بها callback أو listener طويل العمر. أزيل listeners/subscriptions التي لم أعد أحتاجها.
+
+**Interview question (EN):** What is the output, and what state does each closure retain?
+
+**Answer (EN):** The output is `1 2 1 3`. Each `makeCounter` call creates its own lexical environment. The returned function keeps access to that call's `count`. A closure is normal JavaScript behavior; retaining unnecessary large objects through long-lived callbacks is the memory concern.
+
+### س80. Event delegation وdebounce وthrottle: إمتى تستخدم كل واحد؟
+
+**الإجابة بالعربي:** Event delegation يضع listener على parent مستقر ويحدد العنصر المقصود من event target؛ مفيد لقائمة ديناميكية، مع الانتباه للـbubbling والعناصر المتداخلة. Debounce ينفذ بعد توقف الأحداث فترة، مناسب لبحث بعد الكتابة؛ throttle يحد التنفيذ لمرة خلال interval، مناسب لمراقبة scroll/resize حسب الحالة. أستخدم `event.target.closest(...)` بحذر وأتأكد أنه داخل الـcontainer، ولا أنسى cleanup للـlistener.
+
+**Interview question (EN):** When would you use delegation, debounce, and throttle?
+
+**Answer (EN):** Delegation handles bubbling events at a stable ancestor, useful for dynamic lists. Debounce waits for a quiet period, such as after typing; throttle caps execution frequency for repeated events such as scrolling. I validate the matched target stays within the container and remove listeners when their owner is destroyed.
+
+---
+
 ## 3. TypeScript
 
 ### س14. لماذا `unknown` أفضل من `any` عند حدود الـAPI؟
@@ -266,6 +385,32 @@ const name = first(['Ali', 'Mona']); // string | undefined
 
 ---
 
+### س81. `type` vs `interface`: كيف تختار بدون قواعد مطلقة؟
+
+**الإجابة بالعربي:** الاتنين يصفان object shapes في حالات كثيرة. `interface` مناسبة لعقد object قابل للامتداد وdeclaration merging عند الحاجة؛ `type` أكثر مرونة للـunions والـtuples والـmapped/conditional types. لا أحوّلها لنقاش أسلوب فارغ؛ أختار convention ثابتًا للفريق، وأستخدم discriminated union للحالات المتبادلة بدل optional fields كثيرة.
+
+**Interview question (EN):** How do you choose between a TypeScript type alias and an interface?
+
+**Answer (EN):** Both model object shapes. Interfaces support extension and declaration merging; type aliases also represent unions, tuples, and type transformations. I follow team conventions for ordinary object contracts and use a discriminated union when I need mutually exclusive states.
+
+### س82. لماذا `strictNullChecks` و`unknown` مهمان عند API boundary؟
+
+**الإجابة بالعربي:** TypeScript لا يتحقق من JSON وقت التشغيل. أستقبل البيانات الخارجية كـ`unknown` أو type غير موثوق، ثم أتحقق من shape قبل استخدامها. `strictNullChecks` يجبرني أتعامل مع `null`/`undefined` بدل crash لاحق. `as User` لا يفعل validation؛ هو assertion للمترجم فقط. أميز أيضًا بين optional property `x?: T` وقيمة `T | undefined` حسب العقد.
+
+**Interview question (EN):** Why are TypeScript assertions insufficient for API responses?
+
+**Answer (EN):** TypeScript types disappear at runtime. An assertion does not validate JSON. I validate untrusted data at the boundary and use `unknown` until it is narrowed. Strict null checks force explicit handling of missing values, which prevents many runtime failures.
+
+### س83. تستخدم `Partial`, `Pick`, `Omit`, و`Record` إمتى؟
+
+**الإجابة بالعربي:** `Pick<User, 'id' | 'name'>` يحدد subset، و`Omit` يحذف حقولًا من contract، و`Partial` يجعل properties اختيارية، و`Record<Key, Value>` يصف mapping بمفاتيح معلومة. مثال: update DTO قد يكون `Partial<Pick<User, 'name' | 'phone'>>`، لكن يجب منع تحديث `id` على السيرفر كذلك. لا أفرط في تركيب utility types لحد ما العقد يصبح صعب القراءة.
+
+**Interview question (EN):** Give practical uses for common TypeScript utility types.
+
+**Answer (EN):** `Pick` selects fields, `Omit` removes fields, `Partial` makes fields optional, and `Record` models a key-to-value map. They help derive DTO shapes consistently, but I keep API contracts readable and still enforce field permissions on the server.
+
+---
+
 ## 4. OOP وSOLID وDesign Patterns
 
 ### س17. اشرح أركان OOP باختصار وبدون مبالغة.
@@ -304,6 +449,32 @@ const name = first(['Ali', 'Mona']); // string | undefined
 
 ---
 
+### س84. Composition vs inheritance في Angular: ماذا تختار ولماذا؟
+
+**الإجابة بالعربي:** أفضّل composition لمعظم UI behaviors: component يستخدم service أو directive أو projected content بدل base component متضخم. Inheritance يفيد فقط لعقد مشترك حقيقي ومستقر، لكن lifecycle وDI وtemplate behavior قد تجعل التسلسل صعب الفهم. مثال: بدل `BaseListComponent` فيه فلترة وتصدير وصلاحيات، أفصل data source/service وdirectives صغيرة وأركب المطلوب.
+
+**Interview question (EN):** When is composition preferable to inheritance in Angular?
+
+**Answer (EN):** Composition lets a component combine focused services, directives, and content without inheriting a large base class. I reserve inheritance for a stable genuine is-a relationship. It reduces coupling and makes each behavior easier to test and replace.
+
+### س85. طبّق Dependency Inversion وOpen/Closed بمثال payment UI.
+
+**الإجابة بالعربي:** component لا يعتمد مباشرة على `StripeService`، بل على abstraction/token مثل `PAYMENT_GATEWAY` له `pay()`؛ الـprovider يختار implementation. إضافة gateway جديد تتم بإضافة implementation/provider بدل تعديل component في كل مرة. لكن لا أبني abstraction قبل وجود سبب أو اختلاف حقيقي؛ الهدف تقليل coupling وإتاحة الاختبار، وليس زيادة الملفات.
+
+**Interview question (EN):** Show Dependency Inversion and Open/Closed in an Angular feature.
+
+**Answer (EN):** A checkout component depends on a payment-gateway contract through an injection token, not a concrete provider. Different implementations can be supplied without rewriting the component. I introduce that abstraction when there is a real variation or testing need, rather than abstracting every service automatically.
+
+### س86. Observer, Strategy, وFacade: أمثلة عملية لا مجرد تعريفات.
+
+**الإجابة بالعربي:** Observer يظهر في Observable streams أو event subscriptions؛ المستهلكون يتفاعلون مع تغيّر المصدر. Strategy يبدّل خوارزمية حسب السياق، مثل pricing أو validation policy تُحقن كعقد. Facade يقدم API أصغر لfeature معقدة، مثل methods/selectors فوق NgRx، لكنه لا يجب أن يخفي كل تفاصيل الحالة أو يصبح service عملاق. أذكر trade-off والسبب قبل اسم الـpattern.
+
+**Interview question (EN):** Where have you used Observer, Strategy, or Facade in Angular?
+
+**Answer (EN):** Observable subscriptions are a form of Observer. A replaceable validation or pricing policy is Strategy. A feature facade can expose focused commands and view state over NgRx. I use each pattern to solve a concrete coupling or complexity problem and avoid adding a facade that merely forwards every store operation.
+
+---
+
 ## 5. Data Structures وGit وHTTP
 
 ### س20. Array vs linked list، وإزاي تختار؟
@@ -337,6 +508,32 @@ const name = first(['Ali', 'Mona']); // string | undefined
 **Interview question (EN):** Describe your Git and deployment workflow.
 
 **Answer (EN):** I keep changes small, review the diff, write clear commits, run relevant checks, and open a reviewable pull request. I resolve conflicts by understanding both changes rather than choosing one side blindly. For deployment, I check configuration and build output, run a smoke test, and know how to roll back if a release fails.
+
+---
+
+### س87. تختار `Array`, `Map`, أو `Set` للبحث وإزالة التكرار إزاي؟
+
+**الإجابة بالعربي:** `Array` للترتيب والتكرار والفهرسة، لكن البحث عن عنصر غالبًا O(n). `Map` مناسب lookup بمفتاح، و`Set` لعضوية قيم فريدة؛ عمليات lookup/add متوسطة الأداء تقارب O(1)، لا ضمان مطلق لكل حالة. لو بيانات API كثيرة وتحتاج lookup متكرر، أبني index واحدًا بدل `find` داخل loop تتحول إلى O(n²). أقيس حجم البيانات الحقيقي قبل التعقيد.
+
+**Interview question (EN):** How do you choose among Array, Map, and Set in a frontend feature?
+
+**Answer (EN):** Arrays preserve order and support iteration, but repeated linear lookups can be costly. Maps index values by key; Sets model unique membership. For repeated lookups over a large collection, I build an index once instead of nesting `find` calls. Average complexity guides the choice, then I measure the actual workload.
+
+### س88. HTTP methods وidempotency وcaching: ما الذي يهم الـfrontend؟
+
+**الإجابة بالعربي:** `GET` للقراءة ويفترض أن يكون safe وقابلًا للكاش حسب headers؛ `POST` لإنشاء/تنفيذ عملية غالبًا غير idempotent؛ `PUT` يستبدل resource و`DELETE` غالبًا idempotent من حيث الحالة النهائية، و`PATCH` لتعديل جزئي وقد يكون idempotent حسب العملية. لا أعيد محاولة mutation عشوائيًا، خصوصًا الدفع أو إنشاء الطلب، إلا مع idempotency key أو عقد backend واضح. أفهم `Cache-Control`, `ETag` و`304` عند تشخيص stale data.
+
+**Interview question (EN):** Why does HTTP idempotency matter when retrying requests?
+
+**Answer (EN):** A retry must not accidentally create duplicate side effects. GET is safe by intent; PUT and DELETE are idempotent in their intended semantics, while POST usually is not. PATCH depends on its operation. For mutations such as payment, I require a backend idempotency strategy before automatic retries and inspect cache headers when reads appear stale.
+
+### س89. CORS وpreflight: هل إصلاحها في Angular؟
+
+**الإجابة بالعربي:** CORS سياسة متصفح يحددها **رد السيرفر**. طلب cross-origin غير simple قد يسبقه `OPTIONS` preflight يسأل عن method/headers المسموحة. `mode: 'no-cors'` لا يمنحني response قابلة للقراءة، وAngular interceptor لا يضيف صلاحية CORS. الحل في إعدادات backend أو reverse proxy الموثوق، مع `Access-Control-Allow-Origin` مضبوط؛ وعند credentials لا تستخدم wildcard. في dev قد أستخدم proxy محلي فقط لتسهيل التطوير.
+
+**Interview question (EN):** How do you diagnose a CORS error and preflight failure?
+
+**Answer (EN):** I inspect the browser Network panel for the OPTIONS preflight and response headers. The server must allow the requesting origin, method, and headers; a frontend interceptor cannot grant that permission. I avoid broad wildcard rules for credentialed requests and use a development proxy only as a local convenience.
 
 ---
 
@@ -394,6 +591,48 @@ ngOnInit() {
 
 ---
 
+### س90. ماذا يحدث فعليًا مع `OnPush`؟ ومتى لا يكفي وحده؟
+
+**الإجابة بالعربي:** `OnPush` يقلل فحص subtree عندما لا توجد إشارة تستدعيه؛ Angular يراجعها مع تغير input reference، أحداث داخل subtree، async pipe/signals التي تبلغ عن تغير، أو طلب mark صريح حسب السياق. لو عدلت object input in-place قد لا يتغير reference فتظهر UI قديمة؛ تحديث immutable أو signal صحيح أوضح. `OnPush` لا يعالج request بطيئًا أو DOM ثقيلًا أو selector يعيد حسابًا مكلفًا؛ أقيس قبل اختياره كحل.
+
+**Interview question (EN):** What does Angular OnPush change detection do, and what can still go wrong?
+
+**Answer (EN):** OnPush lets Angular skip a component subtree until it is notified through inputs, events, reactive reads, or explicit marking. In-place mutation of an input object may not provide a new reference. It is useful for predictable rendering, but it does not fix slow networking, excessive DOM, or expensive computation by itself.
+
+### س91. `providedIn: 'root'` vs component provider vs route provider في مثال memory.
+
+**الإجابة بالعربي:** root service يعيش عادة طوال عمر التطبيق، فلو احتفظ بـsubscription أو cache أو reference لمكون قديم ستظل البيانات محتجزة. component provider يعطي instance لكل subtree ويُدمّر مع المكون؛ route provider يربطها بـroute injector، لكن مدة حياته تتأثر بإدارة الـroute/reuse ولا أعتمد على افتراض ساذج. scope يحدد عمر الـservice، لكن leak يحصل بسبب references وsubscriptions غير المنظفة. استخدم `DestroyRef`, `takeUntilDestroyed`, async pipe، وحدود cache واضحة.
+
+**Interview question (EN):** How can DI scope influence memory retention without being a leak by itself?
+
+**Answer (EN):** A root service can live for the whole application, so subscriptions or references it stores may retain old views or data. A component-scoped provider follows that component's injector lifetime, and a route provider follows its route environment injector lifecycle. The actual leak is an unwanted retained reference or side effect; I manage teardown and cache lifetime explicitly.
+
+### س92. `ngOnInit`, `ngAfterViewInit`, `ngOnDestroy`, و`DestroyRef`: متى تستخدمهم؟
+
+**الإجابة بالعربي:** `ngOnInit` لتهيئة تعتمد على inputs بعد ضبطها أول مرة؛ `ngAfterViewInit` عندما أحتاج view/query جاهزة، لا لوضع كل API calls تلقائيًا؛ `ngOnDestroy` لتنظيف موارد أنشأها المكون. `DestroyRef.onDestroy` أو `takeUntilDestroyed` يربط cleanup بعمر injection context. أفضّل declarative template/async pipe حيث يمكن، ولا أنشئ subscription يدوية لمجرد نقل قيمة إلى متغير.
+
+**Interview question (EN):** Where do you initialize view-dependent work and clean up subscriptions?
+
+**Answer (EN):** I use `ngOnInit` for initialization after initial inputs, `ngAfterViewInit` only when the rendered view or queries are needed, and destruction hooks for owned resources. `DestroyRef` and `takeUntilDestroyed` make teardown follow the relevant injection context. I prefer template bindings and async pipe for simple streams.
+
+### س93. Standalone components وlazy routes: ما أثرهم على architecture والـbundle؟
+
+**الإجابة بالعربي:** Standalone component يعلن imports التي يحتاجها مباشرة، ويسهل تنظيم features دون NgModule لمجرد التجميع. `loadComponent`/`loadChildren` يؤخران تحميل route code حتى الحاجة، لكن مقدار التوفير يعتمد على dependency graph وshared chunks. أراجع bundle analyzer وroute network waterfall، وأنتبه إلى أن provider في route أو root يغير lifetime/instance sharing، وليس مجرد مكان import.
+
+**Interview question (EN):** Why use standalone components and lazy routes in a large Angular app?
+
+**Answer (EN):** Standalone declarations make dependencies explicit, while lazy route loading can defer feature code until navigation. The real bundle effect depends on shared dependencies and chunking, so I inspect generated bundles. Provider placement also affects instance scope and state lifetime, not just code organization.
+
+### س94. Component communication: Inputs/Outputs، service، أو store؟
+
+**الإجابة بالعربي:** parent-child القريب: inputs وoutputs أو model binding حسب واجهة المكون؛ siblings داخل feature: service scoped للـfeature قد تكفي؛ state مشتركة بين routes أو تحتاج tracing/effects: store أو facade مدروس. لا أستخدم global NgRx لفتح dropdown، ولا event bus عامة تخفي مصدر التغيير. أفصل server state عن UI state وأحدد صاحب البيانات وعمرها قبل اختيار الآلية.
+
+**Interview question (EN):** How do you choose a communication mechanism between Angular components?
+
+**Answer (EN):** I use explicit inputs and outputs for local parent-child interaction, a scoped service for feature-level collaboration, and a store when state is shared broadly or needs coordinated effects and traceability. I first identify ownership, lifetime, and whether the state is server data or local UI state.
+
+---
+
 ## 7. Routing وForms وHTTP وAuthentication
 
 ### س28. `canMatch` مقابل resolver؛ ما دور كل منهما؟
@@ -430,6 +669,32 @@ ngOnInit() {
 
 ---
 
+### س95. Route guard يحمّي البيانات؟ اشرح `canMatch` وauthorization الصحيح.
+
+**الإجابة بالعربي:** guard يحسن navigation UX ويمنع تفعيل route غير مسموحة في العميل، لكن كود العميل قابل للتعديل ولا يحمي API. السيرفر يتحقق من authentication وauthorization **لكل request**. `canMatch` يحدد هل route match أصلاً، وقد يسمح بتجربة route بديلة؛ `canActivate` يقرر بعد المطابقة. أستخدم redirect/UrlTree بدل side effect navigation عند الإمكان، وأتعامل مع session expiry و403 بوضوح.
+
+**Interview question (EN):** Can an Angular route guard enforce authorization?
+
+**Answer (EN):** A guard controls client-side navigation, not server security. The backend must authorize every protected request. `canMatch` affects route matching and can permit an alternative route; `canActivate` checks activation after matching. I return a redirect result where appropriate and handle expired sessions and 403 responses coherently.
+
+### س96. Dynamic Reactive Form: كيف تدير validation وasync validation؟
+
+**الإجابة بالعربي:** أبني `FormGroup`/`FormArray` حسب schema واضحة، وأستخدم `Validators` للقيود المحلية وasync validator لشرط يعتمد على server مثل username availability. أتحكم في إظهار الأخطاء بعد touched/submit، وأتعامل مع pending state وrace/cancellation. لا أكرر business rules في الـUI دون عقد server، والتحقق النهائي عند submit على backend. لو form كبيرة، أفصل الأقسام إلى components دون فقدان علاقة controls بالـparent form.
+
+**Interview question (EN):** How would you structure a large dynamic reactive form?
+
+**Answer (EN):** I model repeated fields with `FormArray`, keep validation rules close to the form model, and use async validators only for server-dependent checks. I show errors at useful times, account for pending and stale responses, and rely on backend validation as the final authority. I split the UI into focused components while keeping the form contract clear.
+
+### س97. Interceptor فيه retry أو refresh token: ما الـrace conditions؟
+
+**الإجابة بالعربي:** لو عدة requests رجعت 401 معًا، لا أرسل refresh لكل واحدة؛ أشارك refresh واحدًا وأعيد الطلبات بعد نجاحه. أمنع refresh loop عندما refresh نفسه يفشل، وأخرج المستخدم/أنظف session بصورة منضبطة. retry للـGET الشبكي قد يكون مناسبًا مع backoff، لكن لا أعيد POST حساسًا بلا idempotency contract. أستخدم interceptor للسياسة المشتركة فقط، وليس لإخفاء أخطاء feature عن المستخدم.
+
+**Interview question (EN):** How do you avoid duplicate refresh calls and unsafe retries in an interceptor?
+
+**Answer (EN):** I coordinate concurrent 401 responses around one refresh operation, replay requests after success, and stop retry loops if refresh fails. I retry only requests whose semantics and backend contract permit it, with bounded backoff. A generic interceptor should not silently hide feature-specific errors.
+
+---
+
 ## 8. RxJS — الجزء الأكثر ارتباطًا بسيناريوهات Angular
 
 ### س32. Cold vs hot Observable؟
@@ -462,6 +727,40 @@ ngOnInit() {
 **Interview question (EN):** How do you prevent RxJS memory leaks?
 
 **Answer (EN):** I first identify whether the source completes by itself or can continue indefinitely. I use the async pipe, takeUntilDestroyed, or explicit cleanup for long-lived subscriptions and listeners. I also inspect shared streams, Subjects, caches, and root services, then verify the fix with repeated navigation and memory or subscription measurements.
+
+---
+
+### س98. `Subject`, `BehaviorSubject`, و`ReplaySubject`: ما الفرق في late subscriber؟
+
+**الإجابة بالعربي:** `Subject` يبث القيم الجديدة فقط لمن اشترك وقت البث. `BehaviorSubject` يحتاج initial value ويعطي آخر قيمة فور الاشتراك. `ReplaySubject(n)` يعيد آخر `n` قيم (وقد يخزنها حتى انتهاء عمره)، فانتبه للـbuffer والذاكرة. الاختيار حسب contract وليس التفضيل الشخصي؛ وفي Angular Signals/store قد يكون تمثيل state الحالي أوضح من Subject مكشوف للجميع.
+
+**Interview question (EN):** What will a late subscriber receive from Subject, BehaviorSubject, and ReplaySubject?
+
+**Answer (EN):** A plain Subject only emits future values. BehaviorSubject immediately supplies its current value and requires an initial value. ReplaySubject replays its configured buffer to late subscribers, which has a memory cost. I choose according to whether consumers need events, current state, or history.
+
+### س99. `combineLatest`, `forkJoin`, و`zip`: أيهم لطلبات HTTP وأيهم live filters؟
+
+**الإجابة بالعربي:** `combineLatest` يخرج بعد أول قيمة من كل source، ثم عند تغير أي واحد؛ مناسب لfilters حية، لكنه لن يخرج لو source لم يبث. `forkJoin` ينتظر completion من الجميع ويعطي آخر قيمة لكل واحد؛ مناسب لطلبات HTTP أحادية القيمة، لكنه لا يخرج مع source لا ينتهي. `zip` يزاوج القيمة رقم 1 مع رقم 1 وهكذا؛ مفيد عندما تتوافق emissions بالترتيب. أقرر أيضًا كيف أعرض partial errors/loading.
+
+**Interview question (EN):** When do you use combineLatest, forkJoin, and zip?
+
+**Answer (EN):** `combineLatest` reacts whenever any source updates after all have emitted once. `forkJoin` waits for all sources to complete and returns their latest values, which suits one-shot HTTP calls but not never-ending streams. `zip` pairs emissions by position. I choose based on emission and completion behavior, not just output shape.
+
+### س100. ليه `shareReplay(1)` ممكن يعمل memory leak أو stale data؟
+
+**الإجابة بالعربي:** `shareReplay` يشارك subscription ويخزن آخر emission. لو source طويل العمر وobservable مشتركة محفوظة في root service، قد يستمر الاشتراك/الـcache أطول من المطلوب، خاصة مع إعدادات لا تفصل عند صفر subscribers. أحدد lifetime وسياسة invalidation، وأفكر في `shareReplay({ bufferSize: 1, refCount: true })` حين يناسب، لكن `refCount` قد يعيد التنفيذ عند اشتراك جديد. HTTP finite غالبًا مختلف عن live stream لا ينتهي. لا أستعمله كوصفة ثابتة.
+
+**Interview question (EN):** What are the trade-offs of shareReplay in an Angular service?
+
+**Answer (EN):** It can avoid duplicate work and replay the latest value, but the cached value and source subscription may outlive the view that needed them. I decide whether the source completes, when it should disconnect, and how data is invalidated. `refCount` can release a live source when unused, but may trigger a new execution later.
+
+### س101. `catchError` داخل أم خارج `switchMap`؟ وماذا يحدث للـstream؟
+
+**الإجابة بالعربي:** لو `catchError` داخل inner HTTP observable، أتعامل مع فشل request واحد وأبقي outer search stream حيًا ليستقبل كتابة جديدة. لو وضعته بعد `switchMap` وأرجعت fallback observable ينتهي، قد تنتهي سلسلة البحث كلها بعد أول خطأ. أضع error boundary في مستوى الاستمرار المطلوب، وأعرض error state للمستخدم؛ لا أبتلع الخطأ بصمت.
+
+**Interview question (EN):** Why does catchError placement matter in a search stream?
+
+**Answer (EN):** Catching inside the switched inner request lets one failed request recover while the outer input stream continues. Catching after `switchMap` handles failure at the outer chain and may terminate future search handling if the recovery stream completes. I place the boundary according to the intended lifetime and surface errors in the UI.
 
 ---
 
@@ -503,6 +802,32 @@ ngOnInit() {
 
 ---
 
+### س102. متى تكفي Signals، ومتى يصبح NgRx مفيدًا؟
+
+**الإجابة بالعربي:** Signal ممتازة لstate متزامنة محلية وderived values بـ`computed`. NgRx يفيد عندما state مشتركة واسعة، updates/events كثيرة، effects معقدة، وتحتاج أدوات tracing واتفاقًا واضحًا على التغييرات. ممكن يستخدم التطبيق الاثنين: NgRx للـfeature/global state وSignals للـlocal UI أو selectors عبر interop. لا أنقل كل state إلى store، ولا أستخدم `effect` لتقليد reducer من غير داعٍ.
+
+**Interview question (EN):** How do you decide between Angular Signals and NgRx?
+
+**Answer (EN):** Signals are strong for local synchronous state and derived values. NgRx adds structured events, reducers, effects, selectors, and tooling when state and side effects span features. They can coexist; I decide based on ownership, lifetime, coordination complexity, and debugging needs rather than treating one as a universal replacement.
+
+### س103. لماذا selector memoization قد لا ينقذك من re-renders؟
+
+**الإجابة بالعربي:** selector يعيد استخدام الناتج عندما inputs نفسها لم تتغير، لكن لو reducer يرجع references جديدة بلا تغير حقيقي أو selector factory تُنشأ داخل كل render، ستضيع الفائدة. أختار state normalized وselectors مركبة صغيرة، وأتجنب mapping ثقيل في template أو إنشاء arrays/objects جديدة كل مرة. أستخدم trackBy/`track` مناسبًا للقوائم، وأقيس component renders وselector recomputations قبل التعديل.
+
+**Interview question (EN):** What can undermine NgRx selector memoization and UI performance?
+
+**Answer (EN):** Memoization depends on stable input references and selector instances. Unnecessary immutable copies, newly created selector factories, and view mappings that allocate fresh objects can still cause work. I normalize state where useful, compose focused selectors, use stable list identity, and profile before optimizing.
+
+### س104. Effect طويل العمر يسبب leak إزاي رغم إن NgRx يدير الاشتراك؟
+
+**الإجابة بالعربي:** NgRx يدير subscription الخاصة بالـeffect، لكن inner streams أو manual subscriptions أو timers أنشأتها داخل service قد تستمر. `mergeMap` إلى stream لا ينتهي لكل action قد يراكم subscriptions، و`shareReplay`/cache في root قد تحتفظ ببيانات قديمة. أختار flattening operator حسب سياسة التزامن، وأربط stream بعمرها مثل `takeUntil` عند logout أو route leave، ولا أعمل `subscribe` داخل effect بلا سبب.
+
+**Interview question (EN):** Can an NgRx effect still cause retained subscriptions or memory growth?
+
+**Answer (EN):** Yes. NgRx owns the effect subscription, but an effect can start long-lived inner streams, timers, or manual subscriptions that accumulate. I choose the flattening policy deliberately, define cancellation and feature lifetime, and inspect caches and retained data when memory grows across navigation or logout.
+
+---
+
 ## 10. Performance وSSR وSecurity وTesting
 
 ### س39. صفحة Angular بطيئة؛ ماذا تفعل قبل اقتراح `OnPush`؟
@@ -536,6 +861,24 @@ ngOnInit() {
 **Interview question (EN):** What would you test in an Angular feature?
 
 **Answer (EN):** I test important behavior rather than implementation details: business rules in services, user interactions and rendered output in components, form validation, and HTTP success and error paths. I mock external boundaries, not every internal call. TestBed and HTTP testing tools help me verify behavior without live network requests.
+
+---
+
+### س105. LCP وINP وCLS سيئين: تشخّص كل واحد إزاي؟
+
+**الإجابة بالعربي:** LCP: أحدد العنصر الرئيسي ووقت اكتشافه/تحميله، server response، CSS/JS blocking، وأولوية الصورة. INP: أسجل interaction بطيء وأقسمه input delay، processing، وpresentation؛ أبحث عن long tasks وrender كثيف. CLS: أشاهد layout shifts ومصدرها، وأثبت أبعاد صور/إعلانات ومحتوى يُضاف قبل العنصر المرئي. أستخدم field data حين متاحة ومعها lab profiling، وأقيس قبل/بعد على نفس السيناريو.
+
+**Interview question (EN):** How would you diagnose poor LCP, INP, and CLS rather than guessing fixes?
+
+**Answer (EN):** For LCP I identify the candidate element and its discovery, fetch, and render delays. For INP I profile the slow interaction and separate input delay, processing, and presentation work. For CLS I inspect shift sources and reserve space for images and dynamic content. I compare field and lab data and verify a measured improvement.
+
+### س106. ماذا تختبر في feature Angular مهمة، وماذا لا يستحق اختبارًا هشًا؟
+
+**الإجابة بالعربي:** أختبر behavior يهم المستخدم: form validation/submission، حالة loading/error، authorization UI، routing، وcancellation عند request متأخر. Unit tests للمنطق الصافي والـreducers/selectors، component tests للتفاعل والـDOM، وE2E لمسار حرج واحد أو اثنين. لا أختبر implementation detail مثل اسم private method أو عدد `detectChanges`؛ هذه اختبارات هشة لا تحمي السلوك. أختبر keyboard/accessibility في المسارات المهمة.
+
+**Interview question (EN):** What is a practical testing strategy for a senior Angular feature?
+
+**Answer (EN):** I test user-visible behavior and important failure paths, use unit tests for pure logic, component tests for interaction and DOM state, and a small number of critical end-to-end flows. I avoid tests tied to private implementation details and include keyboard and accessibility checks where the feature depends on them.
 
 ---
 
@@ -842,6 +1185,7 @@ ngOnInit() {
 - [Angular documentation](https://angular.dev/overview) · [Angular performance](https://angular.dev/best-practices/performance) · [Angular security](https://angular.dev/best-practices/security)
 - [RxJS higher-order Observables](https://rxjs.dev/guide/higher-order-observables) · [NgRx Store](https://ngrx.io/guide/store/why) · [NgRx selectors](https://ngrx.io/guide/store/selectors)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/2/narrowing) · [MDN JavaScript closures](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures) · [Core Web Vitals](https://web.dev/articles/vitals)
+
 
 
 
